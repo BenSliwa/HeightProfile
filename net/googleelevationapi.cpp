@@ -20,7 +20,7 @@ void GoogleElevationAPI::requestElevation(const QList<Position> &_positions)
         if(i<_positions.size()-1)
             url += "|";
     }
-    url += "&samples=5";
+    url += "&samples=250";
 
     QNetworkRequest request;
     request.setUrl(QUrl(url));

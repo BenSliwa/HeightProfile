@@ -28,7 +28,7 @@ Page1Form {
             var longitude = entry["longitude"];
             var elevation = entry["elevation"];
 
-            var distance = 100;
+            var distance = canvas.width/m_heightProfile.length;
 
             //console.log(latitude, longitude, elevation)
 
