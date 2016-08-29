@@ -43,6 +43,9 @@ void GoogleElevationAPI::onElevationReply()
         QJsonArray array = object.value("results").toArray();
 
         QList<Position> positions;
+
+        QVariantList heightProfile;
+
         for(int i=0; i<array.size(); i++)
         {
             QMap<QString, QVariant> map = array.at(i).toVariant().toMap();
@@ -56,8 +59,16 @@ void GoogleElevationAPI::onElevationReply()
             positions << position;
 
             position.info();
+
+            //heightProfile << elevation;
+
+            QMap<QString, QVariant> entry;
+            entry.insert("longitude", longitude);
+            entry.insert("latitude", latitude);
+            entry.insert("elevation", elevation);
+            heightProfile << entry;
         }
 
-        emit elevationReplyReceived(positions);
+        emit heightProfileReceived(heightProfile);
     }
 }

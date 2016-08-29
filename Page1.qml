@@ -1,44 +1,60 @@
 import QtQuick 2.7
 
 Page1Form {
-    button1.onClicked: {
-        console.log("Button Pressed. Entered text: " + textField1.text);
-    }
-
+    property variant m_heightProfile
 
     Component.onCompleted:
     {
-        ElevationAPI.elevationReplyReceived.connect(onElevationReplyReception);
+        ElevationAPI.heightProfileReceived.connect(onHeightProfileReception);
     }
 
-    function onElevationReplyReception(_positions)
+    function onHeightProfileReception(_profile)
     {
-        console.log("onElevationReplyReception " + _positions.length)
+        console.log("onHeightProfileReception " + _profile.length)
+
+        m_heightProfile = _profile;
+
+        canvas.requestPaint();
+    }
+
+    function drawPath()
+    {
+        var context = canvas.getContext('2d');
+        context.beginPath();
+        for(var i=0; i<m_heightProfile.length; i++)
+        {
+            var entry = m_heightProfile[i];
+            var latitude = entry["latitude"];
+            var longitude = entry["longitude"];
+            var elevation = entry["elevation"];
+
+            var distance = 100;
+
+            //console.log(latitude, longitude, elevation)
+
+            var x = distance * i;
+            var y = elevation ;
+
+            console.log(x, y)
+
+            if(i==0)
+                context.moveTo(x, canvas.height-y);
+
+            context.lineTo(x, canvas.height-y);
+        }
+
+        context.lineWidth = 3;
+        context.strokeStyle = 'blue';
+        context.stroke();
     }
 
     Canvas {
       id:canvas
       anchors.fill: parent
+      height: 500
+
       onPaint:{
-         var context = canvas.getContext('2d');
-          context.beginPath();
-                context.moveTo(100, 20);
-
-                // line 1
-                context.lineTo(200, 160);
-
-                // quadratic curve
-                context.quadraticCurveTo(230, 200, 250, 120);
-
-                // bezier curve
-                context.bezierCurveTo(290, -40, 300, 200, 400, 150);
-
-                // line 2
-                context.lineTo(500, 90);
-
-                context.lineWidth = 5;
-                context.strokeStyle = 'blue';
-                context.stroke();
+          drawPath();
       }
     }
 }

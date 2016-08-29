@@ -20,7 +20,7 @@ public slots:
     void onElevationReply();
 
 signals:
-    void elevationReplyReceived(const QList<Position> &_positions);
+    void heightProfileReceived(const QVariantList &_heightProfile);
 
 private:
     QNetworkAccessManager m_http;
