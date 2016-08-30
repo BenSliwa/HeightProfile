@@ -11,9 +11,15 @@ class UiManager : public QObject
 public:
     UiManager(QObject *_parent = 0);
 
+    Q_INVOKABLE QString getFileName();
+    Q_INVOKABLE double getAngle();
+
 private:
     QQmlApplicationEngine m_qml;
     GoogleElevationAPI m_api;
+
+    QString m_fileName;
+    double m_angle;
 };
 
 #endif // UIMANAGER_H

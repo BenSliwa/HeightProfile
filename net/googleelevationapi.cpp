@@ -4,15 +4,18 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <limits>
+#include <iomanip>
+#include <cmath>
 
 GoogleElevationAPI::GoogleElevationAPI(QObject *_parent) : QObject(_parent)
 {
 
 }
 
-void GoogleElevationAPI::requestElevation(const QList<Position> &_positions)
+void GoogleElevationAPI::requestElevation(const QList<Position> &_positions, int _samples)
 {
-    QString url = "https://maps.googleapis.com/maps/api/elevation/json?path=";
+    QString url = "http://maps.googleapis.com/maps/api/elevation/json?path=";
     for(int i=0; i<_positions.size(); i++)
     {
         Position position = _positions.at(i);
@@ -20,7 +23,7 @@ void GoogleElevationAPI::requestElevation(const QList<Position> &_positions)
         if(i<_positions.size()-1)
             url += "|";
     }
-    url += "&samples=250";
+    url += "&samples=" + QString::number(_samples);
 
     QNetworkRequest request;
     request.setUrl(QUrl(url));
@@ -46,6 +49,8 @@ void GoogleElevationAPI::onElevationReply()
 
         QVariantList heightProfile;
 
+        double minElevation = std::numeric_limits<double>::max();
+        double maxElevation = std::numeric_limits<double>::min();
         for(int i=0; i<array.size(); i++)
         {
             QMap<QString, QVariant> map = array.at(i).toVariant().toMap();
@@ -58,7 +63,7 @@ void GoogleElevationAPI::onElevationReply()
             Position position = Position(longitude, latitude, elevation);
             positions << position;
 
-            position.info();
+            //position.info();
 
             //heightProfile << elevation;
 
@@ -67,8 +72,44 @@ void GoogleElevationAPI::onElevationReply()
             entry.insert("latitude", latitude);
             entry.insert("elevation", elevation);
             heightProfile << entry;
+
+            if(elevation<minElevation)
+                minElevation = elevation;
+            if(elevation>maxElevation)
+                maxElevation = elevation;
         }
 
-        emit heightProfileReceived(heightProfile);
+        double maxDistance = 10000;
+        minElevation = 0;
+
+        emit heightProfileReceived(heightProfile, minElevation, maxElevation, maxDistance);
     }
+}
+
+Position GoogleElevationAPI::getTargetPosition(Position _position, double _angle, double _distance_m)
+{
+    double yaw = fmod(_angle, 360);
+
+    std::setprecision(10);
+    double d = _distance_m/1000;
+    double R = 6371;
+    double h = gradToRad(yaw);
+    double lat = gradToRad(_position.latitude);
+    double lon = gradToRad(_position.longitude);
+    double latitude = asin(sin(lat)*cos(d/R) + cos(lat)*sin(d/R)*cos(h));
+    double longitude = lon + atan2(sin(h)*sin(d/R)*cos(lat), cos(d/R)-sin(lat)*sin(latitude));
+
+    Position position = Position(radToGrad(longitude), radToGrad(latitude));
+
+    return position;
+}
+
+double GoogleElevationAPI::radToGrad(double _rad)
+{
+    return (_rad*180/3.14159265358979323846);
+}
+
+double GoogleElevationAPI::gradToRad(double _grad)
+{
+    return _grad*3.14159265358979323846/180;
 }

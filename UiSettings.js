@@ -1,0 +1,18 @@
+.pragma library
+
+var CANVAS_COLOR = "#1c1c1c";
+var GRID_COLOR = "lightgray";
+
+
+var PROFILE_FILL_COLOR = "blue";
+var PROFILE_STROKE_COLOR = "red";
+var PROFILE_WIDTH = 1;
+var PROFILE_HEIGHT_STEPS = 5;
+var PROFILE_DISTANCE_STEPS = 5;
+
+var PROFILE_LEFT_PADDING = 100;
+var PROFILE_RIGHT_PADDING = 100;
+var PROFILE_TOP_PADDING = 50;
+var PROFILE_BOTTOM_PADDING = 50;
+
+var PROFILE_TEXT_COLOR = "black";
